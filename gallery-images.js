@@ -49,13 +49,92 @@ class DynamicGallery {
     }
     
     async scanImagesFolder() {
-        // Load images directly from config - simple and reliable
+        console.log('Scanning images folder:', this.imagesFolder);
+        
+        try {
+            // Try to fetch the images folder listing from PHP script first
+            let response = await fetch(this.imagesFolder + 'index.php');
+            console.log('PHP response status:', response.status);
+            if (response.ok) {
+                const html = await response.text();
+                console.log('PHP HTML received:', html.substring(0, 200) + '...');
+                const imageFiles = this.extractImageFiles(html);
+                console.log('Extracted image files:', imageFiles);
+                if (imageFiles.length > 0) {
+                    this.images = this.createImageObjects(imageFiles);
+                    console.log(`Found ${this.images.length} images via PHP`);
+                    return;
+                }
+            }
+        } catch (error) {
+            console.log('PHP error:', error.message);
+        }
+        
+        try {
+            // Fallback to HTML file if PHP is not available
+            const response = await fetch(this.imagesFolder + 'images-list.html');
+            console.log('HTML response status:', response.status);
+            if (response.ok) {
+                const html = await response.text();
+                console.log('HTML received:', html.substring(0, 200) + '...');
+                const imageFiles = this.extractImageFiles(html);
+                console.log('Extracted image files from HTML:', imageFiles);
+                if (imageFiles.length > 0) {
+                    this.images = this.createImageObjects(imageFiles);
+                    console.log(`Found ${this.images.length} images via HTML`);
+                    return;
+                }
+            }
+        } catch (error) {
+            console.log('HTML error:', error.message);
+        }
+        
+        try {
+            // Try sample images file as last resort
+            const response = await fetch(this.imagesFolder + 'sample-images.html');
+            console.log('Sample images response status:', response.status);
+            if (response.ok) {
+                const html = await response.text();
+                console.log('Sample images HTML received:', html.substring(0, 200) + '...');
+                const imageFiles = this.extractImageFiles(html);
+                console.log('Extracted sample image files:', imageFiles);
+                if (imageFiles.length > 0) {
+                    this.images = this.createImageObjects(imageFiles);
+                    console.log(`Found ${this.images.length} sample images`);
+                    return;
+                }
+            }
+        } catch (error) {
+            console.log('Sample images error:', error.message);
+        }
+        
+        try {
+            // Try actual working images file
+            const response = await fetch(this.imagesFolder + 'actual-images.html');
+            console.log('Actual images response status:', response.status);
+            if (response.ok) {
+                const html = await response.text();
+                console.log('Actual images HTML received:', html.substring(0, 200) + '...');
+                const imageFiles = this.extractImageFiles(html);
+                console.log('Extracted actual image files:', imageFiles);
+                if (imageFiles.length > 0) {
+                    this.images = this.createImageObjects(imageFiles);
+                    console.log(`Found ${this.images.length} actual images`);
+                    return;
+                }
+            }
+        } catch (error) {
+            console.log('Actual images error:', error.message);
+        }
+        
+        // If no images found, try to load some sample images
+        console.log('No images found in folder, using sample images');
+        this.loadSampleImages();
+        
+        // Also try to load from config if available
         if (typeof GALLERY_CONFIG !== 'undefined' && GALLERY_CONFIG.defaultImages) {
+            console.log('Loading images from config as fallback');
             this.images = GALLERY_CONFIG.defaultImages;
-            console.log(`Loaded ${this.images.length} images from config`);
-        } else {
-            // Fallback to sample images
-            this.loadSampleImages();
         }
     }
     
@@ -79,6 +158,12 @@ class DynamicGallery {
                 alt: 'אימון משפחות',
                 title: 'אימון משפחות',
                 description: 'הכנה לחירום לכל המשפחה'
+            },
+            {
+                src: 'https://images.unsplash.com/photo-1604830924571-3b7b74262b1f?q=80&w=400&auto=format&fit=crop',
+                alt: 'סדנאות ארגוניות',
+                title: 'סדנאות ארגוניות',
+                description: 'הכשרת עובדים למוכנות חירום'
             }
         ];
         console.log('Loaded sample images:', this.images.length);
@@ -161,6 +246,23 @@ class DynamicGallery {
         
         // Clear existing content
         galleryContainer.innerHTML = '';
+        
+        if (this.images.length === 0) {
+            // Show message if no images found
+            galleryContainer.innerHTML = `
+                <div style="text-align:center;padding:40px;color:#6c757d;">
+                    <h3>אין תמונות זמינות</h3>
+                    <p>אנא הוסף תמונות לתיקיית images/gallery/</p>
+                    <p style="font-size:14px;margin-top:20px;">
+                        <strong>הוראות:</strong><br>
+                        1. הוסף תמונות לתיקיית images/gallery/<br>
+                        2. או ערוך את gallery-config.js עם URLs של תמונות<br>
+                        3. רענן את הדף
+                    </p>
+                </div>
+            `;
+            return;
+        }
         
         // Create gallery items
         this.images.forEach((image, index) => {
