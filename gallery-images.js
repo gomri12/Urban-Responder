@@ -44,7 +44,6 @@ class DynamicGallery {
     async init() {
         await this.scanImagesFolder();
         this.createGallery();
-        this.startAutoPlay();
         this.addEventListeners();
     }
     
@@ -96,6 +95,14 @@ class DynamicGallery {
         } else {
             console.log('No images found, loading sample images');
             this.loadSampleImages();
+        }
+        
+        // Ensure we have images and start auto-play
+        if (this.images.length > 0) {
+            console.log('Images loaded successfully, starting auto-play');
+            this.startAutoPlay();
+        } else {
+            console.log('No images available, cannot start auto-play');
         }
     }
     
@@ -205,16 +212,25 @@ class DynamicGallery {
         const galleryContainer = document.querySelector('.gallery-grid');
         if (!galleryContainer) return;
         
+        console.log('Creating gallery with', this.images.length, 'images');
+        
         // Clear existing content
         galleryContainer.innerHTML = '';
         
-
+        if (this.images.length === 0) {
+            console.log('No images to display');
+            galleryContainer.innerHTML = '<p style="text-align:center;color:#6c757d;">טוען תמונות...</p>';
+            return;
+        }
         
         // Create gallery items
         this.images.forEach((image, index) => {
+            console.log('Creating gallery item:', image.src);
             const galleryItem = this.createGalleryItem(image, index);
             galleryContainer.appendChild(galleryItem);
         });
+        
+        console.log('Gallery created with', this.images.length, 'items');
     }
     
     createGalleryItem(image, index) {
@@ -223,9 +239,10 @@ class DynamicGallery {
         item.style.opacity = index === 0 ? '1' : '0.3';
         item.style.transform = index === 0 ? 'scale(1)' : 'scale(0.9)';
         item.style.transition = `all ${this.fadeDuration}ms ease-in-out`;
+        item.style.display = 'block'; // Ensure all items are visible
         
         item.innerHTML = `
-            <img src="${image.src}" alt="${image.alt}" loading="lazy">
+            <img src="${image.src}" alt="${image.alt}" loading="lazy" style="width:100%;height:250px;object-fit:cover;">
             <div class="gallery-overlay">
                 <h4>${image.title}</h4>
                 <p>${image.description}</p>
@@ -236,7 +253,12 @@ class DynamicGallery {
     }
     
     startAutoPlay() {
+        console.log('Starting auto-play with interval:', this.transitionDuration);
+        if (this.interval) {
+            clearInterval(this.interval);
+        }
         this.interval = setInterval(() => {
+            console.log('Auto-play: changing to next image');
             this.nextImage();
         }, this.transitionDuration);
     }
