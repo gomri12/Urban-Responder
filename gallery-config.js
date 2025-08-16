@@ -15,40 +15,22 @@ const GALLERY_CONFIG = {
     // Default gallery images (fallback if folder scanning fails)
     defaultImages: [
         {
-            src: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?q=80&w=800&auto=format&fit=crop',
-            alt: 'סימולציית חירום',
-            title: 'סימולציית חירום',
-            description: 'תרגול מציאותי עם בובות חכמות'
+            src: 'images/gallery/20231102_163955.jpg',
+            alt: 'אימון חירום מקצועי',
+            title: 'אימון חירום מקצועי',
+            description: 'תרגול מציאותי עם ציוד מתקדם'
         },
         {
-            src: 'https://images.unsplash.com/photo-1604830924571-3b7b74262b1f?q=80&w=800&auto=format&fit=crop',
+            src: 'images/gallery/20231122_135550.jpg',
             alt: 'הדרכה מקצועית',
             title: 'הדרכה מקצועית',
             description: 'מדריכים מנוסים מהשטח'
         },
         {
-            src: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?q=80&w=800&auto=format&fit=crop',
+            src: 'images/gallery/20211019_100602.jpg',
             alt: 'אימון משפחות',
-            title: 'אימון משפחות',
+            title: 'אימון משפחתי',
             description: 'הכנה לחירום לכל המשפחה'
-        },
-        {
-            src: 'https://images.unsplash.com/photo-1604830924571-3b7b74262b1f?q=80&w=800&auto=format&fit=crop',
-            alt: 'סדנאות ארגוניות',
-            title: 'סדנאות ארגוניות',
-            description: 'הכשרת עובדים למוכנות חירום'
-        },
-        {
-            src: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?q=80&w=800&auto=format&fit=crop',
-            alt: 'ציוד מתקדם',
-            title: 'ציוד מתקדם',
-            description: 'טכנולוגיה מתקדמת לאימונים'
-        },
-        {
-            src: 'https://images.unsplash.com/photo-1604830924571-3b7b74262b1f?q=80&w=800&auto=format&fit=crop',
-            alt: 'תרגול קהילתי',
-            title: 'תרגול קהילתי',
-            description: 'הכנת שכונות וישובים'
         }
     ],
     
