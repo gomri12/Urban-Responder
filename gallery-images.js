@@ -44,70 +44,19 @@ class DynamicGallery {
     async init() {
         await this.scanImagesFolder();
         this.createGallery();
-        
-        // Start auto-play if we have images
-        if (this.images.length > 0) {
-            console.log('Starting auto-play with', this.images.length, 'images');
-            this.startAutoPlay();
-        } else {
-            console.log('No images available, cannot start auto-play');
-        }
-        
+        this.startAutoPlay();
         this.addEventListeners();
     }
     
     async scanImagesFolder() {
-        console.log('Scanning images folder:', this.imagesFolder);
-        
-        // First, try to load images directly from config to ensure we have something
+        // Load images directly from config - simple and reliable
         if (typeof GALLERY_CONFIG !== 'undefined' && GALLERY_CONFIG.defaultImages) {
-            console.log('Loading images directly from config first');
             this.images = GALLERY_CONFIG.defaultImages;
             console.log(`Loaded ${this.images.length} images from config`);
-            return;
+        } else {
+            // Fallback to sample images
+            this.loadSampleImages();
         }
-        
-        try {
-            // Try to fetch the images folder listing from PHP script
-            let response = await fetch(this.imagesFolder + 'index.php');
-            console.log('PHP response status:', response.status);
-            if (response.ok) {
-                const html = await response.text();
-                console.log('PHP HTML received:', html.substring(0, 200) + '...');
-                const imageFiles = this.extractImageFiles(html);
-                console.log('Extracted image files:', imageFiles);
-                if (imageFiles.length > 0) {
-                    this.images = this.createImageObjects(imageFiles);
-                    console.log(`Found ${this.images.length} images via PHP`);
-                    return;
-                }
-            }
-        } catch (error) {
-            console.log('PHP error:', error.message);
-        }
-        
-        try {
-            // Fallback to HTML file if PHP is not available
-            const response = await fetch(this.imagesFolder + 'images-list.html');
-            console.log('HTML response status:', response.status);
-            if (response.ok) {
-                const html = await response.text();
-                console.log('HTML received:', html.substring(0, 200) + '...');
-                const imageFiles = this.extractImageFiles(html);
-                console.log('Extracted image files from HTML:', imageFiles);
-                if (imageFiles.length > 0) {
-                    this.images = this.createImageObjects(imageFiles);
-                    console.log(`Found ${this.images.length} images via HTML`);
-                    return;
-                }
-            }
-        } catch (error) {
-            console.log('HTML error:', error.message);
-        }
-        
-        // Final fallback - load sample images
-        console.log('No images found, loading sample images');
-        this.loadSampleImages();
     }
     
     loadSampleImages() {
@@ -210,25 +159,14 @@ class DynamicGallery {
         const galleryContainer = document.querySelector('.gallery-grid');
         if (!galleryContainer) return;
         
-        console.log('Creating gallery with', this.images.length, 'images');
-        
         // Clear existing content
         galleryContainer.innerHTML = '';
         
-        if (this.images.length === 0) {
-            console.log('No images to display');
-            galleryContainer.innerHTML = '<p style="text-align:center;color:#6c757d;">טוען תמונות...</p>';
-            return;
-        }
-        
         // Create gallery items
         this.images.forEach((image, index) => {
-            console.log('Creating gallery item:', image.src);
             const galleryItem = this.createGalleryItem(image, index);
             galleryContainer.appendChild(galleryItem);
         });
-        
-        console.log('Gallery created with', this.images.length, 'items');
     }
     
     createGalleryItem(image, index) {
@@ -240,7 +178,7 @@ class DynamicGallery {
         item.style.display = 'block'; // Ensure all items are visible
         
         item.innerHTML = `
-            <img src="${image.src}" alt="${image.alt}" loading="lazy" style="width:100%;height:250px;object-fit:cover;" onerror="this.style.display='none'; console.log('Failed to load image:', this.src);">
+            <img src="${image.src}" alt="${image.alt}" loading="lazy" style="width:100%;height:250px;object-fit:cover;">
             <div class="gallery-overlay">
                 <h4>${image.title}</h4>
                 <p>${image.description}</p>
@@ -251,12 +189,7 @@ class DynamicGallery {
     }
     
     startAutoPlay() {
-        console.log('Starting auto-play with interval:', this.transitionDuration);
-        if (this.interval) {
-            clearInterval(this.interval);
-        }
         this.interval = setInterval(() => {
-            console.log('Auto-play: changing to next image');
             this.nextImage();
         }, this.transitionDuration);
     }
