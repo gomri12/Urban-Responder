@@ -64,6 +64,14 @@ Urban Responder is a professional landing page for emergency preparedness traini
 Urban-Responder/
 ├── index.html                    # Main landing page
 ├── urban_responder_landing_page_rtl.html  # Original RTL version
+├── gallery-config.js             # Gallery configuration
+├── gallery-images.js             # Gallery functionality
+├── images/                       # Image assets folder
+│   ├── gallery/                  # Gallery images
+│   │   ├── index.php            # PHP image lister
+│   │   ├── images-list.html     # HTML fallback
+│   │   └── .gitkeep             # Git tracking
+│   └── README.md                # Image folder guide
 ├── README.md                     # This file
 └── .git/                        # Git repository
 ```
