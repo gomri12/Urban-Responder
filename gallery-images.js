@@ -44,14 +44,31 @@ class DynamicGallery {
     async init() {
         await this.scanImagesFolder();
         this.createGallery();
+        
+        // Start auto-play if we have images
+        if (this.images.length > 0) {
+            console.log('Starting auto-play with', this.images.length, 'images');
+            this.startAutoPlay();
+        } else {
+            console.log('No images available, cannot start auto-play');
+        }
+        
         this.addEventListeners();
     }
     
     async scanImagesFolder() {
         console.log('Scanning images folder:', this.imagesFolder);
         
+        // First, try to load images directly from config to ensure we have something
+        if (typeof GALLERY_CONFIG !== 'undefined' && GALLERY_CONFIG.defaultImages) {
+            console.log('Loading images directly from config first');
+            this.images = GALLERY_CONFIG.defaultImages;
+            console.log(`Loaded ${this.images.length} images from config`);
+            return;
+        }
+        
         try {
-            // Try to fetch the images folder listing from PHP script first
+            // Try to fetch the images folder listing from PHP script
             let response = await fetch(this.imagesFolder + 'index.php');
             console.log('PHP response status:', response.status);
             if (response.ok) {
@@ -88,22 +105,9 @@ class DynamicGallery {
             console.log('HTML error:', error.message);
         }
         
-        // If no images found, load from config as fallback
-        if (typeof GALLERY_CONFIG !== 'undefined' && GALLERY_CONFIG.defaultImages) {
-            console.log('Loading images from config as fallback');
-            this.images = GALLERY_CONFIG.defaultImages;
-        } else {
-            console.log('No images found, loading sample images');
-            this.loadSampleImages();
-        }
-        
-        // Ensure we have images and start auto-play
-        if (this.images.length > 0) {
-            console.log('Images loaded successfully, starting auto-play');
-            this.startAutoPlay();
-        } else {
-            console.log('No images available, cannot start auto-play');
-        }
+        // Final fallback - load sample images
+        console.log('No images found, loading sample images');
+        this.loadSampleImages();
     }
     
     loadSampleImages() {
@@ -126,12 +130,6 @@ class DynamicGallery {
                 alt: 'אימון משפחות',
                 title: 'אימון משפחות',
                 description: 'הכנה לחירום לכל המשפחה'
-            },
-            {
-                src: 'https://images.unsplash.com/photo-1604830924571-3b7b74262b1f?q=80&w=400&auto=format&fit=crop',
-                alt: 'סדנאות ארגוניות',
-                title: 'סדנאות ארגוניות',
-                description: 'הכשרת עובדים למוכנות חירום'
             }
         ];
         console.log('Loaded sample images:', this.images.length);
@@ -242,7 +240,7 @@ class DynamicGallery {
         item.style.display = 'block'; // Ensure all items are visible
         
         item.innerHTML = `
-            <img src="${image.src}" alt="${image.alt}" loading="lazy" style="width:100%;height:250px;object-fit:cover;">
+            <img src="${image.src}" alt="${image.alt}" loading="lazy" style="width:100%;height:250px;object-fit:cover;" onerror="this.style.display='none'; console.log('Failed to load image:', this.src);">
             <div class="gallery-overlay">
                 <h4>${image.title}</h4>
                 <p>${image.description}</p>
