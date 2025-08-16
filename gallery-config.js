@@ -3,7 +3,7 @@
 
 const GALLERY_CONFIG = {
     // Transition timing (in milliseconds)
-    transitionDuration: 3000,  // 3 seconds between transitions
+    transitionDuration: 5000,  // 5 seconds between transitions
     fadeDuration: 500,         // 500ms fade transition
     
     // Image folder path
@@ -21,14 +21,14 @@ const GALLERY_CONFIG = {
             description: 'תרגול מציאותי עם ציוד מתקדם'
         },
         {
-            src: 'images/gallery/20231122_135550.jpg',
+            src: 'images/gallery/20221111_092116.jpg',
             alt: 'הדרכה מקצועית',
             title: 'הדרכה מקצועית',
             description: 'מדריכים מנוסים מהשטח'
         },
         {
-            src: 'images/gallery/20211019_100602.jpg',
-            alt: 'אימון משפחות',
+            src: 'images/gallery/WhatsApp Image 2024-05-11 at 20.17.58 (1).jpeg',
+            alt: 'אימון משפחתי',
             title: 'אימון משפחתי',
             description: 'הכנה לחירום לכל המשפחה'
         }

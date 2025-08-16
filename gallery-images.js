@@ -51,13 +51,6 @@ class DynamicGallery {
     async scanImagesFolder() {
         console.log('Scanning images folder:', this.imagesFolder);
         
-        // First, try to load images directly from the config
-        if (typeof GALLERY_CONFIG !== 'undefined' && GALLERY_CONFIG.defaultImages) {
-            console.log('Loading images directly from config');
-            this.images = GALLERY_CONFIG.defaultImages;
-            return;
-        }
-        
         try {
             // Try to fetch the images folder listing from PHP script first
             let response = await fetch(this.imagesFolder + 'index.php');
@@ -96,9 +89,14 @@ class DynamicGallery {
             console.log('HTML error:', error.message);
         }
         
-        // If no images found, load sample images
-        console.log('No images found in folder, loading sample images');
-        this.loadSampleImages();
+        // If no images found, load from config as fallback
+        if (typeof GALLERY_CONFIG !== 'undefined' && GALLERY_CONFIG.defaultImages) {
+            console.log('Loading images from config as fallback');
+            this.images = GALLERY_CONFIG.defaultImages;
+        } else {
+            console.log('No images found, loading sample images');
+            this.loadSampleImages();
+        }
     }
     
     loadSampleImages() {
@@ -177,6 +175,9 @@ class DynamicGallery {
         if (lowerFilename.includes('emergency')) return 'emergency';
         if (lowerFilename.includes('preparedness')) return 'preparedness';
         if (lowerFilename.includes('response')) return 'response';
+        if (lowerFilename.includes('wa')) return 'whatsapp';
+        if (lowerFilename.includes('img')) return 'image';
+        if (lowerFilename.includes('2021') || lowerFilename.includes('2022') || lowerFilename.includes('2023') || lowerFilename.includes('2024')) return 'recent';
         return 'training'; // default category
     }
     
@@ -191,7 +192,10 @@ class DynamicGallery {
             'instruction': 'הדרכה מקצועית',
             'emergency': 'תגובה לחירום',
             'preparedness': 'מוכנות לחירום',
-            'response': 'תגובה מהירה'
+            'response': 'תגובה מהירה',
+            'whatsapp': 'תמונה מאימון',
+            'image': 'תמונה מאימון',
+            'recent': 'אימון עדכני'
         };
         
         return `${titles[category] || 'אימון'} ${number}`;
@@ -252,8 +256,13 @@ class DynamicGallery {
         items[this.currentIndex].style.opacity = '0.3';
         items[this.currentIndex].style.transform = 'scale(0.9)';
         
-        // Move to next image
-        this.currentIndex = (this.currentIndex + 1) % items.length;
+        // Move to random image (avoiding current one)
+        let newIndex;
+        do {
+            newIndex = Math.floor(Math.random() * items.length);
+        } while (newIndex === this.currentIndex && items.length > 1);
+        
+        this.currentIndex = newIndex;
         
         // Fade in new image
         items[this.currentIndex].style.opacity = '1';
@@ -268,8 +277,13 @@ class DynamicGallery {
         items[this.currentIndex].style.opacity = '0.3';
         items[this.currentIndex].style.transform = 'scale(0.9)';
         
-        // Move to previous image
-        this.currentIndex = this.currentIndex === 0 ? items.length - 1 : this.currentIndex - 1;
+        // Move to random image (avoiding current one)
+        let newIndex;
+        do {
+            newIndex = Math.floor(Math.random() * items.length);
+        } while (newIndex === this.currentIndex && items.length > 1);
+        
+        this.currentIndex = newIndex;
         
         // Fade in new image
         items[this.currentIndex].style.opacity = '1';

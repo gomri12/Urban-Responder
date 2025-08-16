@@ -14,8 +14,10 @@ if ($handle = opendir($galleryPath)) {
     while (false !== ($entry = readdir($handle))) {
         $extension = strtolower(pathinfo($entry, PATHINFO_EXTENSION));
         if (in_array($extension, $supportedFormats)) {
-            // Skip thumbnail files
-            if (!strpos(strtolower($entry), 'thumb')) {
+            // Skip thumbnail files and PHP/HTML files
+            if (!strpos(strtolower($entry), 'thumb') && 
+                !strpos(strtolower($entry), '.php') && 
+                !strpos(strtolower($entry), '.html')) {
                 $imageFiles[] = $entry;
             }
         }
