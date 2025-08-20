@@ -204,6 +204,20 @@ class DynamicGallery {
     
     detectCategory(filename) {
         const lowerFilename = filename.toLowerCase();
+        
+        // Check for WhatsApp images
+        if (lowerFilename.includes('whatsapp') || lowerFilename.includes('wa')) return 'whatsapp';
+        
+        // Check for IMG files
+        if (lowerFilename.includes('img')) return 'image';
+        
+        // Check for date-based files (2021, 2022, 2023, 2024)
+        if (lowerFilename.includes('2021') || lowerFilename.includes('2022') || 
+            lowerFilename.includes('2023') || lowerFilename.includes('2024')) {
+            return 'date';
+        }
+        
+        // Check for specific training types
         if (lowerFilename.includes('training')) return 'training';
         if (lowerFilename.includes('workshop')) return 'workshop';
         if (lowerFilename.includes('family')) return 'family';
@@ -214,10 +228,9 @@ class DynamicGallery {
         if (lowerFilename.includes('emergency')) return 'emergency';
         if (lowerFilename.includes('preparedness')) return 'preparedness';
         if (lowerFilename.includes('response')) return 'response';
-        if (lowerFilename.includes('wa')) return 'whatsapp';
-        if (lowerFilename.includes('img')) return 'image';
-        if (lowerFilename.includes('2021') || lowerFilename.includes('2022') || lowerFilename.includes('2023') || lowerFilename.includes('2024')) return 'recent';
-        return 'training'; // default category
+        
+        // Default category
+        return 'training';
     }
     
     generateHebrewTitle(category, number) {
@@ -232,9 +245,9 @@ class DynamicGallery {
             'emergency': 'תגובה לחירום',
             'preparedness': 'מוכנות לחירום',
             'response': 'תגובה מהירה',
-            'whatsapp': 'תמונה מאימון',
-            'image': 'תמונה מאימון',
-            'recent': 'אימון עדכני'
+            'whatsapp': 'תמונה מאימון חירום',
+            'image': 'תמונה מאימון חירום',
+            'date': 'תיעוד אימון חירום'
         };
         
         return `${titles[category] || 'אימון'} ${number}`;
