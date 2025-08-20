@@ -4,6 +4,8 @@
 class DynamicGallery {
     constructor() {
         this.currentIndex = 0;
+        this.isExpanded = false;
+        this.initialImageCount = 3;
         
         // Use configuration if available, otherwise use defaults
         if (typeof GALLERY_CONFIG !== 'undefined') {
@@ -277,11 +279,31 @@ class DynamicGallery {
             return;
         }
         
+        // Determine how many images to show
+        const imagesToShow = this.isExpanded ? this.images.length : Math.min(this.initialImageCount, this.images.length);
+        
         // Create gallery items
-        this.images.forEach((image, index) => {
-            const galleryItem = this.createGalleryItem(image, index);
+        for (let i = 0; i < imagesToShow; i++) {
+            const galleryItem = this.createGalleryItem(this.images[i], i);
             galleryContainer.appendChild(galleryItem);
-        });
+        }
+        
+        // Add expand/collapse button if there are more than 3 images
+        if (this.images.length > this.initialImageCount) {
+            this.addExpandButton(galleryContainer);
+        }
+        
+        // Add a subtle indicator of how many images are shown vs total
+        if (!this.isExpanded && this.images.length > this.initialImageCount) {
+            const indicator = document.createElement('div');
+            indicator.style.textAlign = 'center';
+            indicator.style.marginTop = '15px';
+            indicator.style.color = '#6c757d';
+            indicator.style.fontSize = '14px';
+            indicator.style.direction = 'ltr'; // Force left-to-right for indicator
+            indicator.textContent = `מציג ${imagesToShow} מתוך ${this.images.length} תמונות`;
+            galleryContainer.appendChild(indicator);
+        }
     }
     
     createGalleryItem(image, index) {
@@ -324,13 +346,8 @@ class DynamicGallery {
         items[this.currentIndex].style.opacity = '0.3';
         items[this.currentIndex].style.transform = 'scale(0.9)';
         
-        // Move to random image (avoiding current one)
-        let newIndex;
-        do {
-            newIndex = Math.floor(Math.random() * items.length);
-        } while (newIndex === this.currentIndex && items.length > 1);
-        
-        this.currentIndex = newIndex;
+        // Move to next image (cycling through visible images)
+        this.currentIndex = (this.currentIndex + 1) % items.length;
         
         // Fade in new image
         items[this.currentIndex].style.opacity = '1';
@@ -345,13 +362,8 @@ class DynamicGallery {
         items[this.currentIndex].style.opacity = '0.3';
         items[this.currentIndex].style.transform = 'scale(0.9)';
         
-        // Move to random image (avoiding current one)
-        let newIndex;
-        do {
-            newIndex = Math.floor(Math.random() * items.length);
-        } while (newIndex === this.currentIndex && items.length > 1);
-        
-        this.currentIndex = newIndex;
+        // Move to previous image (cycling through visible images)
+        this.currentIndex = (this.currentIndex - 1 + items.length) % items.length;
         
         // Fade in new image
         items[this.currentIndex].style.opacity = '1';
@@ -375,15 +387,19 @@ class DynamicGallery {
     }
     
     addEventListeners() {
-        // Pause auto-play on hover
+        // Pause auto-play on hover (only when not expanded)
         const galleryContainer = document.querySelector('.gallery-grid');
         if (galleryContainer) {
             galleryContainer.addEventListener('mouseenter', () => {
-                this.stopAutoPlay();
+                if (!this.isExpanded) {
+                    this.stopAutoPlay();
+                }
             });
             
             galleryContainer.addEventListener('mouseleave', () => {
-                this.startAutoPlay();
+                if (!this.isExpanded) {
+                    this.startAutoPlay();
+                }
             });
         }
         
@@ -395,6 +411,14 @@ class DynamicGallery {
                 this.nextImage();
             }
         });
+    }
+    
+    // Method to reset gallery to initial state
+    resetGallery() {
+        this.isExpanded = false;
+        this.currentIndex = 0;
+        this.createGallery();
+        this.startAutoPlay();
     }
     
     // Method to add new images dynamically
@@ -418,6 +442,59 @@ class DynamicGallery {
             this.stopAutoPlay();
             this.startAutoPlay();
         }
+    }
+
+    addExpandButton(galleryContainer) {
+        const expandButton = document.createElement('div');
+        expandButton.style.textAlign = 'center';
+        expandButton.style.marginTop = '30px';
+        expandButton.style.marginBottom = '20px';
+        expandButton.style.direction = 'ltr'; // Force left-to-right for button container
+        
+        const button = document.createElement('button');
+        button.className = 'btn';
+        button.style.margin = '0 auto'; // Center the button
+        button.style.padding = '15px 30px';
+        button.style.fontSize = '16px';
+        button.style.fontWeight = '600';
+        button.style.border = 'none';
+        button.style.borderRadius = '14px';
+        button.style.color = '#ffffff';
+        button.style.cursor = 'pointer';
+        button.style.transition = 'all 0.3s ease';
+        button.style.display = 'block'; // Ensure block display for margin auto to work
+        
+        if (this.isExpanded) {
+            button.textContent = 'הצג פחות תמונות';
+            button.style.background = 'linear-gradient(135deg, #6c757d, #495057)';
+            button.style.boxShadow = '0 4px 15px rgba(108, 117, 125, 0.3)';
+        } else {
+            button.textContent = `הצג עוד תמונות (${this.images.length - this.initialImageCount})`;
+            button.style.background = 'linear-gradient(135deg, #dc3545, #fd7e14)';
+            button.style.boxShadow = '0 4px 15px rgba(220, 53, 69, 0.3), 0 0 20px rgba(253, 126, 20, 0.6)';
+        }
+        
+        button.addEventListener('click', () => {
+            this.toggleExpand();
+        });
+        
+        expandButton.appendChild(button);
+        galleryContainer.appendChild(expandButton);
+    }
+    
+    toggleExpand() {
+        this.isExpanded = !this.isExpanded;
+        
+        // Update auto-play for expanded view
+        if (this.isExpanded) {
+            this.stopAutoPlay();
+            // Don't auto-play when expanded to avoid overwhelming users
+        } else {
+            this.startAutoPlay();
+        }
+        
+        // Recreate gallery to update button and layout
+        this.createGallery();
     }
 }
 
